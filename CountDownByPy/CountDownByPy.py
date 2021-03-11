@@ -5,7 +5,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import configparser
-
+import os
+from datetime import datetime
 
 
 def getArgument(secs,key):
@@ -15,7 +16,18 @@ def getArgument(secs,key):
         #browerArgument = cf.items("BrowserSetting")
         return cf.get(secs,key)
     except Exception as e:
-        print (f"检查config.ini文件\nError：{e}")
+        #print (f"检查config.ini文件\nError：{e}")
+        writeErrLog(e)
+        
+
+def writeErrLog(str):
+    curPath = os.path.abspath(os.path.dirname(__file__))#E:\VS\GIT\CountDownByPy\CountDownByPy
+    now = datetime.now()
+    fileName = now.strftime("%Y-%m-%d")
+    textStr = now.strftime("%H:%M:%S")
+    with open(f"{curPath}\\{fileName}.txt","a",encoding='utf-8') as f:
+        f.write(f"{textStr}:{str}\n")
+        pass
 
 class MyTimer(QWidget): 
     def mousePressEvent(self, event):
@@ -39,8 +51,8 @@ class MyTimer(QWidget):
     def __init__(self, parent = None):
         super(MyTimer, self).__init__(parent)   
         #self.resize(110, 80)
-        self.setGeometry(1200,650, 80, 80)   #窗口 移动到 （300，300） 位置，窗口大小 
-        self.setWindowTitle("QTimerDemo")
+        self.setGeometry(1200,650, 80, 70)   #窗口 移动到 （300，300） 位置，窗口大小 
+        self.setWindowTitle("CountDown")
         self.lb1 = QLabel('111111！',self)
 
         self.lcd = QLCDNumber(self)   
@@ -51,8 +63,9 @@ class MyTimer(QWidget):
         self.setWindowFlag(Qt.FramelessWindowHint) # 隐藏边框
         self.setWindowOpacity(0.8) # 设置窗口透明度,1.0为不透明状态
         #self.setWindowFlag(Qt.Drawer)#去掉窗口左上角的图标，右上角的最大化最小化按钮
-        #self.setAttribute(Qt.WA_TranslucentBackground) # 设置窗口背景透明
-        #Qt.SubWindow#隐藏在任务栏的窗口
+        self.setAttribute(Qt.WA_TranslucentBackground) # 设置窗口背景透明
+        self.setWindowFlag(Qt.SubWindow)#隐藏在任务栏的窗口
+
         #self.lcd.setStyleSheet("border: 2px solid black; color: red; background: silver;")
         
         #垂直布局
@@ -61,7 +74,10 @@ class MyTimer(QWidget):
         layout.addWidget(self.lb1)
         layout.addWidget(self.lcd)    
         self.setLayout(layout)
-     
+        
+        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint);
+        self.showNormal();#将窗口恢复到初始大小
+        
         #新建一个QTimer对象    
         self.timer = QTimer()   
         self.timer.setInterval(1000)    
@@ -75,6 +91,7 @@ class MyTimer(QWidget):
         #b = datetime.strptime("20:00:00","%X")        
         localTimeStr = time.strftime("%X",time.localtime())
         localTime = datetime.strptime(localTimeStr, "%X")
+        #localTime = time.localtime()#(2021, 3, 11, 22, 27, 40, 3, 70, 0)
 
         if(happyTime<=localTime):
             seconds = (localTime - happyTime).seconds
