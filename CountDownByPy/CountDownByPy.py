@@ -37,6 +37,14 @@ class MyTimer(QWidget):
             #print(f"点击{self.m_Position}::{event.globalPos()}::{self.pos()}")
             event.accept()
             self.setCursor(QCursor(Qt.OpenHandCursor))  #更改鼠标图标
+        if event.button()==Qt.RightButton:
+            #self.close()
+            menu = QMenu(self)
+            quitAction = menu.addAction("Quit")
+            action = menu.exec_(self.mapToGlobal(event.pos()))
+            if action == quitAction:
+                qApp.quit()
+
             
     def mouseMoveEvent(self, QMouseEvent):
         if Qt.LeftButton and self.m_flag:  
@@ -48,14 +56,43 @@ class MyTimer(QWidget):
         self.m_flag=False
         self.setCursor(QCursor(Qt.ArrowCursor)) 
 
+
     def __init__(self, parent = None):
         super(MyTimer, self).__init__(parent)   
         #self.resize(110, 80)
-        self.setGeometry(1200,650, 80, 70)   #窗口 移动到 （300，300） 位置，窗口大小 
+        #try:
+        #    self.setGeometry(1200,650, 80, 70)
+        #    pass
+        #except Exception as e:
+        #    print(e)
+        self.setGeometry(1200,650, 80, 70)   #窗口 移动到 （1200，650） 位置，窗口大小 
         self.setWindowTitle("CountDown")
-        self.lb1 = QLabel('111111！',self)
+        
+        self.lbStr =  'ハッピーでバッドな眠りは浅い'
+        self.lb1 = QLabel()
+        """ 计算文本的总宽度 """
+        fontMetrics = QFontMetrics(QFont('Microsoft YaHei', 10, 50))
+        self.nameWidth = sum([fontMetrics.width(i)
+                                    for i in self.lbStr])
+        #print(self.nameWidth)
+        """ 根据字符串长度调整窗口宽度 """
+        # 判断是否有字符串宽度超过窗口的最大宽度
+        self.isNameTooLong = self.nameWidth > 70
+        # 设置窗口的宽度
+        self.setFixedWidth(min(self.nameWidth, 100))
+
+        # 设置刷新时间和移动距离
+        self.timeStepLcd = 1000
+        self.timeStepLb = 100
+        self.moveStep = 1
+        self.lbCurrentIndex = 0
+        # 设置字符串溢出标志位
+        self.isAllOut = False
+        # 设置两段字符串之间留白的宽度
+        self.spacing = 1
 
         self.lcd = QLCDNumber(self)   
+        self.lcd.setMaximumWidth(70)#设置LCD最大宽度
         self.lcd.setDigitCount(8)#所显示的位数   
         self.lcd.setMode(QLCDNumber.Dec)#十进制
         self.lcd.setSegmentStyle(QLCDNumber.Flat)
@@ -78,16 +115,24 @@ class MyTimer(QWidget):
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint);
         self.showNormal();#将窗口恢复到初始大小
         
-        #新建一个QTimer对象    
-        self.timer = QTimer()   
-        self.timer.setInterval(1000)    
-        self.timer.start()
-      
+        #新建一个QTimerLCD对象    
+        self.timerLcd = QTimer()   
+        self.timerLcd.setInterval(self.timeStepLcd)    
+        self.timerLcd.start()     
         # 信号连接到槽    
-        self.timer.timeout.connect(self.onTimerOut)
+        self.timerLcd.timeout.connect(self.onTimerOutLcd)
  
-    # 定义槽
-    def onTimerOut(self):
+        #新建一个QTimerLb对象    
+        self.timerLb = QTimer()   
+        self.timerLb.setInterval(self.timeStepLb)    
+        self.timerLb.start()      
+        # 信号连接到槽    
+        self.timerLb.timeout.connect(self.onTimerOutLb)
+
+
+    # 定义槽Lcd
+    def onTimerOutLcd(self):
+        
         #b = datetime.strptime("20:00:00","%X")        
         localTimeStr = time.strftime("%X",time.localtime())
         localTime = datetime.strptime(localTimeStr, "%X")
@@ -95,21 +140,68 @@ class MyTimer(QWidget):
 
         if(happyTime<=localTime):
             seconds = (localTime - happyTime).seconds
-            self.lb1.setText("加班时长：")
+            #self.lb1.setText("加班时长：")
+            self.lbStr =  '加班这么久久久久久了......'
         elif(lunchTime<localTime and localTime<happyTime):
             seconds = (happyTime - localTime).seconds
-            self.lb1.setText("距离下班还剩：")
+            if (localTime - lunchTime).seconds < 600:
+                self.lbStr =  '吃吃吃吃吃吃吃吃饭了......'
+            #self.lb1.setText("距离下班还剩：")
         elif(localTime<=lunchTime):
             seconds = (lunchTime - localTime).seconds
-            self.lb1.setText("距离吃饭还剩：")
+            #self.lb1.setText("距离吃饭还剩：")
+            #self.lbStr =  '1234567890'
         
         hour = int(seconds/3600)
-        minu = int(seconds/60)-hour*60
-        #print(f"{hour}小时{minu}分{seconds%60}秒")
-        self.lcd.display(f"{hour}:{minu}:{seconds%60}")
-        #self.lcd.display(time.strftime("%X",time.localtime()))
- 
+        hour = hour if hour>=10 else "0"+ str(hour)
 
+        minu = int(seconds/60)-int(hour)*60
+        minu = minu if minu>=10 else "0"+str(minu)
+        
+        ss = seconds%60
+        ss = ss if ss>=10 else "0"+str(ss)
+
+        #print(f"{hour}小时{minu}分{seconds%60}秒")
+        self.lcd.display(f"{hour}:{minu}:{ss}")
+        #print("onTimerOutLcd")
+        #self.lcd.display(time.strftime("%X",time.localtime()))
+
+    # 定义槽Lcd
+    def onTimerOutLb(self):
+        
+        global lbStr
+        self.update()
+        #lbStr = lbStr[1:]+lbStr[0]
+        #self.lb1.setText(lbStr)
+        self.lbCurrentIndex += 1
+        # 设置下标重置条件
+        resetIndexCond = self.lbCurrentIndex * \
+            self.moveStep >= self.nameWidth + self.spacing * self.isAllOut
+        # 只要条件满足就要重置下标并将字符串溢出置位，保证在字符串溢出后不会因为留出的空白而发生跳变
+        if resetIndexCond:
+            self.lbCurrentIndex = 0
+            self.isAllOut = True
+        #print("LbLbLbLb")
+
+    def paintEvent(self, e):
+        """ 绘制文本 """
+        # super().paintEvent(e)       
+        painter = QPainter(self)
+        painter.setPen(Qt.black)
+        # 绘制字符串
+        painter.setFont(QFont('Microsoft YaHei', 10))
+        if self.isNameTooLong:
+            # 实际上绘制了两段完整的字符串
+            # 从负的横坐标开始绘制第一段字符串
+            painter.drawText(self.spacing * self.isAllOut - self.moveStep *
+                             self.lbCurrentIndex, 35, self.lbStr)
+            # 绘制第二段字符串
+            painter.drawText(self.nameWidth - self.moveStep * self.lbCurrentIndex +
+                             self.spacing * (1 + self.isAllOut), 35, self.lbStr)
+        else:
+            painter.drawText(0, 54, self.lbStr)
+            
+        #print("paintEvent")
         
 if __name__ == "__main__": 
     global  happyTime, lunchTime

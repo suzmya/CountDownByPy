@@ -11,7 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>CountDownByPy</Name>
     <RootNamespace>CountDownByPy</RootNamespace>
-    <InterpreterId>Global|ContinuumAnalytics|Anaconda38-32</InterpreterId>
+    <InterpreterId>Global|PythonCore|3.8</InterpreterId>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
     <EnableNativeCodeDebugging>True</EnableNativeCodeDebugging>
   </PropertyGroup>
