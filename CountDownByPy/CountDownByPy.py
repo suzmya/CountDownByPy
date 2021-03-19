@@ -68,7 +68,8 @@ class MyTimer(QWidget):
         self.setGeometry(1200,650, 80, 70)   #窗口 移动到 （1200，650） 位置，窗口大小 
         self.setWindowTitle("CountDown")
         
-        self.lbStr =  'ハッピーでバッドな眠りは浅い'
+        
+        self.lbStr = lbStrTemp
         self.lb1 = QLabel()
         """ 计算文本的总宽度 """
         fontMetrics = QFontMetrics(QFont('Microsoft YaHei', 10, 50))
@@ -89,7 +90,7 @@ class MyTimer(QWidget):
         # 设置字符串溢出标志位
         self.isAllOut = False
         # 设置两段字符串之间留白的宽度
-        self.spacing = 1
+        self.spacing = 10
 
         self.lcd = QLCDNumber(self)   
         self.lcd.setMaximumWidth(70)#设置LCD最大宽度
@@ -103,7 +104,7 @@ class MyTimer(QWidget):
         self.setAttribute(Qt.WA_TranslucentBackground) # 设置窗口背景透明
         self.setWindowFlag(Qt.SubWindow)#隐藏在任务栏的窗口
 
-        #self.lcd.setStyleSheet("border: 2px solid black; color: red; background: silver;")
+        self.lcd.setStyleSheet(lcdStyle)#设置LCD格式
         
         #垂直布局
         layout = QVBoxLayout()
@@ -141,16 +142,18 @@ class MyTimer(QWidget):
         if(happyTime<=localTime):
             seconds = (localTime - happyTime).seconds
             #self.lb1.setText("加班时长：")
-            self.lbStr =  '加班这么久久久久久了......'
+            if seconds<3600:
+                self.lbStr =  '加班多久久久久久了......'
         elif(lunchTime<localTime and localTime<happyTime):
             seconds = (happyTime - localTime).seconds
+            self.lbStr =  lbStrTemp
             if (localTime - lunchTime).seconds < 600:
                 self.lbStr =  '吃吃吃吃吃吃吃吃饭了......'
             #self.lb1.setText("距离下班还剩：")
         elif(localTime<=lunchTime):
             seconds = (lunchTime - localTime).seconds
             #self.lb1.setText("距离吃饭还剩：")
-            #self.lbStr =  '1234567890'
+            self.lbStr =  lbStrTemp
         
         hour = int(seconds/3600)
         hour = hour if hour>=10 else "0"+ str(hour)
@@ -166,7 +169,7 @@ class MyTimer(QWidget):
         #print("onTimerOutLcd")
         #self.lcd.display(time.strftime("%X",time.localtime()))
 
-    # 定义槽Lcd
+    # 定义槽Lb
     def onTimerOutLb(self):
         
         global lbStr
@@ -204,9 +207,11 @@ class MyTimer(QWidget):
         #print("paintEvent")
         
 if __name__ == "__main__": 
-    global  happyTime, lunchTime
+    global  happyTime, lunchTime,lcdStyle,lbStrTemp
     happyTimeStr = getArgument("TimeSetting","happyTime")
     lunchTimeStr = getArgument("TimeSetting","lunchTime")
+    lcdStyle = getArgument("TimeSetting","lcdStyle")
+    lbStrTemp = getArgument("TimeSetting","lbStr")
     happyTime = datetime.strptime(happyTimeStr, "%X")
     lunchTime = datetime.strptime(lunchTimeStr, "%X")
 
