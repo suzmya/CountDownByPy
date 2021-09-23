@@ -87,6 +87,8 @@ pyinstaller D:\codes\dpython.py
 
 pyinstaller -F --i xxx\123.ico name.py，-F表示打包成一个文件，不想显示窗口的话加个-w
 
+pyinstaller -F -w -i 3.ico CountDownByPy.py
+
 pyinstaller -D xxx.py
 -d生成一个文件目录包含可执行文件和相关动态链接库和资源文件等；
 -f仅生成一个可执行文件

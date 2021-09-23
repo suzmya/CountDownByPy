@@ -142,13 +142,13 @@ class MyTimer(QWidget):
         if(happyTime<=localTime):
             seconds = (localTime - happyTime).seconds
             #self.lb1.setText("加班时长：")
-            if seconds<3600:
-                self.lbStr =  '加班多久久久久久了......'
+            if seconds>3600:
+                self.lbStr =  lbHappyStr
         elif(lunchTime<localTime and localTime<happyTime):
             seconds = (happyTime - localTime).seconds
             self.lbStr =  lbStrTemp
-            if (localTime - lunchTime).seconds < 600:
-                self.lbStr =  '吃吃吃吃吃吃吃吃饭了......'
+            if (localTime - lunchTime).seconds < timeSpanInt:
+                self.lbStr = lbLunchStr
             #self.lb1.setText("距离下班还剩：")
         elif(localTime<=lunchTime):
             seconds = (lunchTime - localTime).seconds
@@ -207,11 +207,14 @@ class MyTimer(QWidget):
         #print("paintEvent")
         
 if __name__ == "__main__": 
-    global  happyTime, lunchTime,lcdStyle,lbStrTemp
+    global  happyTime, lunchTime,lcdStyle,lbStrTemp,lbLunchStr,lbHappyStr,timeSpanInt
     happyTimeStr = getArgument("TimeSetting","happyTime")
     lunchTimeStr = getArgument("TimeSetting","lunchTime")
     lcdStyle = getArgument("TimeSetting","lcdStyle")
     lbStrTemp = getArgument("TimeSetting","lbStr")
+    lbLunchStr = getArgument("TimeSetting","lbLunchStr")
+    lbHappyStr = getArgument("TimeSetting","lbHappyStr")
+    timeSpanInt = int(getArgument("TimeSetting","timeSpanInt"))
     happyTime = datetime.strptime(happyTimeStr, "%X")
     lunchTime = datetime.strptime(lunchTimeStr, "%X")
 

@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['CountDownByPy.py'],
-             pathex=['E:\\VS\\GIT\\CountDownByPy\\CountDownByPy'],
+             pathex=['E:\\GIT\\CountDownByPy\\CountDownByPy'],
              binaries=[],
              datas=[],
              hiddenimports=[],

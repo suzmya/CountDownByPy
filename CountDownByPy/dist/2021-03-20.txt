@@ -1,0 +1,4 @@
+00:45:17:While reading from 'config.ini' [line  5]: option 'lcdstyle' in section 'TimeSetting' already exists
+00:45:17:While reading from 'config.ini' [line  5]: option 'lcdstyle' in section 'TimeSetting' already exists
+00:45:17:While reading from 'config.ini' [line  5]: option 'lcdstyle' in section 'TimeSetting' already exists
+00:45:17:While reading from 'config.ini' [line  5]: option 'lcdstyle' in section 'TimeSetting' already exists
