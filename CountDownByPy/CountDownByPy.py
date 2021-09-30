@@ -8,7 +8,9 @@ import configparser
 import os
 from datetime import datetime
 
-
+#testtesttest2
+def cctest(str)
+     #print ("cctest！！！！！！！！！！！！！！！！？？？")
 def getArgument(secs,key):
     try:
         cf = configparser.ConfigParser()
